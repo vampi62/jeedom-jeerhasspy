@@ -19,6 +19,7 @@
 try {
 	require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 	require_once dirname(__FILE__) . '/../class/rhasspy.utils.class.php';
+	require_once dirname(__FILE__) . '/../class/buildmodel.class.php';
 
 	include_file('core', 'authentification', 'php');
 	if (!isConnect('admin')) {
@@ -125,6 +126,13 @@ try {
 		}
 	}
 
+	if (init('action') == 'buildmodel'){
+		$intentFormData = json_decode(init('intents'), true);
+		log::add('jeerhasspy', 'debug', 'compilation des intents de rhasspy');
+		$result = Model::buildModel($intentFormData);
+		if (isset($result['error']) ) {
+			ajax::error($result['error']);
+		}
 	throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
 	/*     * *********Catch exeption*************** */
 } catch (Exception $e) {

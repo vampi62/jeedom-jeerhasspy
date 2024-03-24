@@ -1,0 +1,87 @@
+{
+	"jeedomLumiere" : {
+        "name" : "Lumiere",
+		"titre" : "Gestion de la lumière",
+		"module" : [
+			{
+				"type" : "select",
+				"name" : "objet",
+				"balise" : "Objet : #objet#",
+				"size" : 10,
+				"option" : "_objet"
+            },
+			{
+				"type" : "text",
+				"name" : "equipement",
+				"balise" : "Nom des équipements : #equipement#",
+				"option" : "lampe;plafonnier;led;lumière;spot"
+			},
+			{
+				"type" : "text",
+				"name" : "customWord",
+				"balise" : "mot custom :",
+				"option" : "raspberry:R a s p b e R i;kodi:K o d I"
+			},
+			{
+				"type" : "checkbox",
+				"name" : "commande",
+				"balise" : "Commande : #commande#",
+				"class" : "checkboxes",
+				"text" : ["allume | éteint","ouvre | ferme","met à 1 | met à 0"]
+			},
+			{
+				"type" : "phrase",
+				"name" : "phrase",
+				"balise" : "paterne de phrase",
+				"phrase" : [
+					{
+						"name" : "direct_unique",
+                        "balise" : "controler un equipement",
+						"div" : [
+							{"type" : "texte","class" : "intentBox", "text" : "phase : "},
+							{"type" : "texte","class" : "textIntent", "text" : "&lt;commande&gt;"},
+							{"type" : "texte","class" : "textIntent", "text" : "[la] [le] [l']"},
+							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;equipement&gt;"},
+							{"type" : "texte","class" : "textIntent", "text" : "[de] [à] [l'] [la] [du] [de la]"},
+							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;objet&gt;"}
+						],
+						"phraseReturn" : "Ok je vais #commande# #equipement# #objet#",
+						"pluginRequis" : [],
+						"descriptif" : "Ordre direct sur un equipement"
+					},
+					{
+						"name" : "direct_recursif",
+                        "balise" : "controler plusieurs equipement de maniere recursif",
+						"div" : [
+							{"type" : "texte","class" : "intentBox", "text" : "phase : "},
+							{"type" : "texte","class" : "textIntent", "text" : "&lt;commande&gt;"},
+							{"type" : "texte","class" : "textIntent", "text" : "[tous | toutes]"},
+							{"type" : "texte","class" : "textIntent", "text" : "[les] [l']"},
+							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;equipement&gt;"},
+							{"type" : "texte","class" : "textIntent", "text" : "[de] [à] [l'] [la] [du] [de la]"},
+							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;objet&gt;"}
+						],
+						"phraseReturn" : "Ok je vais #commande# #equipement# #objet#",
+						"pluginRequis" : ["virtuel"],
+						"descriptif" : "ordre direct sur un virtuel qui controle plusieurs equipement d'un objet (recursif)"
+                    }
+				]
+            },
+			{
+				"type" : "multitext",
+				"name" : "commande jeedom",
+                "elements" : [
+                    {"name" : "commandeOn","balise" : "Commande jeedom pour activer:", "option" : "on;allumer"},
+                    {"name" : "commandeOff","balise" : "Commande jeedom pour désactiver:", "option" : "off;eteindre"}
+                ]
+            },
+			{
+				"type" : "select",
+				"name" : "category",
+				"balise" : "Catégorie : type d'équipement jeedom rechercher",
+				"size" : 10,
+				"option" : {"noCategory" : "0", "heating" : "0", "security" : "0", "energy" : "0", "light" : "1", "opening" : "0", "automatism" : "0", "multimedia" : "0", "default" : "0"}
+            }
+        ]
+    }
+}
