@@ -13,6 +13,7 @@ class Model {
 			return "";
 		}
 		log::add('jeerhasspy','debug',$requestHttp->getUrl());
+		log::add('jeerhasspy','debug',$requestHttp->getHttpCode());
 		log::add('jeerhasspy','debug',$result);
 		return $result;
 	}
@@ -136,22 +137,70 @@ class Model {
 		
 		log::add('jeerhasspy', 'debug', 'compilation des données rhasspy');
 		foreach ($formData as $key => $value) {
-			$rhasspyIntent[$key] = [];
-			$rhasspyIntent[$key][] = "commande = (" . implode(' | ', $value["ordre"]) . "){commande}";
-			$rhasspyIntent[$key][] = "equipement = ($" . $key . "_equipement){equipement}";
-			$rhasspyIntent[$key][] = "objet = ($" . $key . "_objet){objet}";
-			$rhasspyIntent[$key][] = "phrase_demande = (" . str_replace("] [", "|", implode(' ', $value["phrase"])) . ")";
-			$rhasspyIntent[$key][] = "<phrase_demande>";
-			foreach ($value['custom_word'] as $i => $word) {
-				$rhasspyCustomWord[$i] = $word;
-			}
-			$rhasspySlot[$key . '_objet'] = [];
-			foreach ($value['objet'] as $i => $objet) {
-				$rhasspySlot[$key . '_objet'][] = $objet;
-			}
-			$rhasspySlot[$key . '_equipement'] = [];
-			foreach ($value['equipement'] as $i => $equipement) {
-				$rhasspySlot[$key . '_equipement'][] = $equipement;
+			if ($value['active'] == "0") {
+				// si l'intent est désactivé on le supprime
+				for ($i = 0; $i < count($value["phrase"]); $i++) {
+					if (isset($rhasspyIntent[$key . "_" . $i])) {
+						unset($rhasspyIntent[$key . "_" . $i]);
+					}
+				}
+			} else {
+				// si l'intent est activé on le compile
+				$listSlot = [];
+				$tempoIsOn = false;
+				$recursifIsOn = false;
+				for ($i = 0; $i < count($value["module"]); $i++) {
+					// if in $value["module"][$i]['class'] one value is "isrhasspyslot"
+					if (in_array("isrhasspyslot", $value["module"][$i]['class'])) {
+						if (in_array("isobject", $value["module"][$i]['class'])) {
+							$_objet = array();
+							foreach ((jeeObject::all()) as $object) {
+								$_objet[$object->getId()] = $object->getName();
+							}
+							$rhasspySlot[$key . '_' . $value["module"][$i]['name']] = [];
+							for ($j = 0; $j < count($value["module"][$i]['value']); $j++) {
+								$rhasspySlot[$key . '_' . $value["module"][$i]['name']][] = $_objet[$value["module"][$i]['value'][$j]];
+							}
+						} else {
+							$rhasspySlot[$key . '_' . $value["module"][$i]['name']] = $value["module"][$i]['value'];
+						}
+						$listSlot[$value["module"][$i]['name']] = $key . '_' . $value["module"][$i]['name'];
+					}
+					if (in_array("isrhasspycustomword", $value["module"][$i]['class'])) {
+						for ($j = 0; $j < count($value["module"][$i]['value']); $j++) {
+							$rhasspyCustomWord[explode(" ", $value["module"][$i]['value'][$j])[0]] = $value["module"][$i]['value'][$j];
+						}
+					}
+					if (in_array("istemporisation", $value["module"][$i]['class'])) {
+						if ($value["module"][$i]['value']) {
+							$tempoIsOn = true;
+						}
+					}
+					if (in_array("isrecursif", $value["module"][$i]['class'])) {
+						if ($value["module"][$i]['value']) {
+							$recursifIsOn = true;
+						}
+					}
+				}
+				for ($i = 0; $i < count($value["phrase"]); $i++) {
+					if (count($value["phrase"][$i]["cond"]) > 0) {
+						if (in_array("recursif", $value["phrase"][$i]["cond"]) && !$recursifIsOn) {
+							unset($rhasspyIntent[$key . "_" . $i]);
+							continue;
+						}
+						if (in_array("temporisation", $value["phrase"][$i]["cond"]) && !$tempoIsOn) {
+							unset($rhasspyIntent[$key . "_" . $i]);
+							continue;
+						}
+					}
+					$_intent = $value["phrase"][$i]["intent"];
+					foreach ($listSlot as $slot => $slotName) {
+						$_intent = str_replace("#" . $slot . "#", "$" . $slotName, $_intent);
+					}
+					$rhasspyIntent[$key . "_" . $i] = [];
+					$rhasspyIntent[$key . "_" . $i][] = "phrase_demande = " . $_intent;
+					$rhasspyIntent[$key . "_" . $i][] = "<phrase_demande>";
+				}
 			}
 		}
 		
@@ -175,6 +224,12 @@ class Model {
 
 		log::add('jeerhasspy', 'debug', 'retrain du model rhasspy');
 		self::trainRhasspyModel();
+
+		// debug
+		return true;
+
+
+
 
 		log::add('jeerhasspy', 'debug', 'recuperation des données jeedom');
 		$interactionsJeedom = utils::o2a(interactDef::all());

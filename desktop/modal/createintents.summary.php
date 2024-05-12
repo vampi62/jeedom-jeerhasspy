@@ -18,58 +18,16 @@ sendVarToJS('configformulaire', $configformulaire);
 sendVarToJS('_saveFormulaire', $_saveFormulaire);
 sendVarToJS('varList', $varList);
 ?>
-<style>
-	.multiselect {
-	  width: 200px;
-	  display: flex;
-	}
-
-	.intentBox {
-	  position: relative;
-	  white-space: nowrap;
-	  margin-left: 5px;
-	  margin-right: 5px;
-	}
-
-	.intentBox select {
-	  width: 100%;
-	  font-weight: bold;
-	}
-
-	.overSelect {
-	  position: absolute;
-	  left: 0;
-	  right: 0;
-	  top: 0;
-	  bottom: 0;
-	}
-
-	.checkboxes {
-	  display: block;
-	  margin-left: 5px;
-	  margin-right: 5px;
-	  white-space: nowrap;
-	  border: 1px #dadada solid;
-	}
-
-	.checkboxes label {
-	  display: block;
-	}
-
-	.checkboxes label:hover {
-	  background-color: #1e90ff;
-	}
-</style>
 
 <div id="div_alertIntentsForm"></div>
-<div style="display:flex;align-items: flex-start;">
-	<div id="menu" style="display:flex;flex-direction: column;">
+<div style="display:flex;align-items: flex-start; height: 100%; overflow: hidden;">
+	<div id="menu" style="display:flex;flex-direction: column; width: 20%; overflow-y: auto; height:100%;">
 		<div id="indexIntent">
 		</div>
 		<a class="btn btn-danger btn-sm roundedRight" id="bt_resetform"><i class="fas fa-undo"></i> Réinitialiser</a>
 		<a class="btn btn-success btn-sm roundedRight" id="bt_trainmodel"><i class="fas fa-check-circle"></i> Sauvegarder / Ré-entraîner</a>
 	</div>
-	<div id="pageIntent" style="display:flex;">
+	<div id="pageIntent" style="display:flex; overflow-y: auto; height:100%; width: 80%">
 	</div>
 </div>
 
@@ -80,136 +38,135 @@ sendVarToJS('varList', $varList);
 	console.log(varList)
 	for (key in configformulaire) {
 		// ajout de l'intent dans l'index a	gauche
-		menuIntent = document.createElement('div');
-		menuIntent.style.display = 'flex';
-		menuIntent.style.justifyContent = 'space-between';
-		menuIntent.innerHTML = '<a href="#" onclick="showForm(\'' + key + '\')">' + configformulaire[key]["name"] + '</a>';
+		let _menuIntent = document.createElement('div');
+		_menuIntent.style.display = 'flex';
+		_menuIntent.style.justifyContent = 'space-between';
+		_menuIntent.innerHTML = '<a href="#" onclick="showForm(\'' + configformulaire[key]["idForm"] + '\')">' + configformulaire[key]["name"] + '</a>';
 		hasSave = false;
-		if (key in _saveFormulaire) {
+		if (configformulaire[key]["idForm"] in _saveFormulaire) {
 			hasSave = true;
 		}
-		if ((hasSave) && ('active' in _saveFormulaire['formulaire-' + key])) {
-			if ($_saveFormulaire['formulaire-' + key]['active'] == "1") {
-				menuIntent.innerHTML += '<input type="checkbox" id="select' + key + '" name="' + configformulaire[key]["name"] + '" checked>';
+		if ((hasSave) && ('active' in _saveFormulaire['formulaire-' + configformulaire[key]["idForm"]])) {
+			if ($_saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['active'] == "1") {
+				_menuIntent.innerHTML += '<input type="checkbox" id="select' + configformulaire[key]["idForm"] + '" name="' + configformulaire[key]["name"] + '" checked>';
 			} else {
-				menuIntent.innerHTML += '<input type="checkbox" id="select' + key + '" name="' + configformulaire[key]["name"] + '">';
+				_menuIntent.innerHTML += '<input type="checkbox" id="select' + configformulaire[key]["idForm"] + '" name="' + configformulaire[key]["name"] + '">';
 			}
 		} else {
-			menuIntent.innerHTML += '<input type="checkbox" id="select' + key + '" name="' + configformulaire[key]["name"] + '">';
+			_menuIntent.innerHTML += '<input type="checkbox" id="select' + configformulaire[key]["idForm"] + '" name="' + configformulaire[key]["name"] + '">';
 		}
-		document.getElementById('indexIntent').appendChild(menuIntent);
+		document.getElementById('indexIntent').appendChild(_menuIntent);
 
 		// ajout du formulaire
 		form = document.createElement('div');
-		form.id = key;
+		form.id = configformulaire[key]["idForm"];
 		form.style.display = 'none';
-		formVue = document.createElement('div');
-		for (panel in configformulaire[key]["module"]) {
-			formNavIntent = document.createElement('div');
-			formNavIntent.innerHTML = '<a href="#" onclick="showPanel(\'' + key + '\',\'' + panel + '\')">' + configformulaire[key]["module"][panel]["name"] + '</a>';
-			formPanel = document.createElement('div');
-			formPanel.id = key + panel;
-			formPanel.style.display = 'none';
-			switch (configformulaire[key]["module"][panel]["type"]) {
-				case "select":
-					formLabel = document.createElement('label');
-					formLabel.innerHTML = configformulaire[key]["module"][panel]["balise"];
-					formSelect = document.createElement('select');
-					if (configformulaire[key]["module"][panel]["size"] > 1) {
-						formSelect.multiple = true;
-						formSelect.size = configformulaire[key]["module"][panel]["size"];
-					}
-					if (is_array(configformulaire[key]["module"][panel]["option"])) {
-						for (option in configformulaire[key]["module"][panel]["option"]) {
-							baliseOption = document.createElement('option');
-							baliseOption.value = option;
-							baliseOption.innerHTML = option;
-							if ((hasSave) && (option in _saveFormulaire['formulaire-' + key][panel]) && (_saveFormulaire['formulaire-' + key][panel][option] == "1")) {
-								baliseOption.selected = true;
-							}
-							if ((configformulaire[key]["module"][panel]["option"][option] == "1")) {
-								baliseOption.selected = true;
-							} 
-							formSelect.appendChild(baliseOption);
-						}
-					} else {
-						for (option in varList[configformulaire[key]["module"][panel]["option"]]) {
-							baliseOption = document.createElement('option');
-							baliseOption.value = varList[configformulaire[key]["module"][panel]["option"]][option];
-							baliseOption.innerHTML = varList[configformulaire[key]["module"][panel]["option"]][option];
-							if ((hasSave) && (option in _saveFormulaire['formulaire-' + key][panel]) && (_saveFormulaire['formulaire-' + key][panel][option] == "1")) {
-								baliseOption.selected = true;
-							}
-							formSelect.appendChild(baliseOption);
-						}
-					}
-					formPanel.appendChild(formLabel);
-					formPanel.appendChild(formSelect);
-					break;
-				case "text":
-					formLabel = document.createElement('label');
-					formLabel.innerHTML = configformulaire[key]["module"][panel]["balise"];
-					formText = document.createElement('input');
-					formText.type = 'text';
-					formText.value = '';
-					if ((hasSave) && (panel in _saveFormulaire['formulaire-' + key]) && (_saveFormulaire['formulaire-' + key][panel] != "")) {
-						formText.value = _saveFormulaire['formulaire-' + key][panel];
-					}
-					formPanel.appendChild(formLabel);
-					formPanel.appendChild(formText);
-					break;
-				case "checkbox":
-					formLabel = document.createElement('label');
-					formLabel.innerHTML = configformulaire[key]["module"][panel]["balise"];
-					formLabel.className = 'checkboxes';
-					formBox = document.createElement('div');
-					for (text in configformulaire[key]["module"][panel]["text"]) {
-						formCheckbox = document.createElement('input');
-						formCheckbox.type = 'checkbox';
-						formCheckbox.value = configformulaire[key]["module"][panel]["text"][text];
-						formCheckbox.innerHTML = configformulaire[key]["module"][panel]["text"][text];
-						if ((hasSave) && (panel in _saveFormulaire['formulaire-' + key]) && (_saveFormulaire['formulaire-' + key][panel] != "")) {
-							if (in_array(configformulaire[key]["module"][panel]["text"][text], _saveFormulaire['formulaire-' + key][panel])) {
-								formCheckbox.checked = true;
-							}
-						}
-						formBox.appendChild(formCheckbox);
-					}
-					formPanel.appendChild(formLabel);
-					formPanel.appendChild(formBox);
-					break;
-				case "phrase":
-					formLabel = document.createElement('label');
-					formLabel.innerHTML = configformulaire[key]["module"][panel]["balise"];
-					break;
-				case "multitext":
-					for (element in configformulaire[key]["module"][panel]["elements"]) {
-						formLabel = document.createElement('label');
-						formLabel.innerHTML = configformulaire[key]["module"][panel]["elements"][element]["balise"];
-						formText = document.createElement('input');
-						formText.type = 'text';
-						formText.value = '';
-						if ((hasSave) && (panel in _saveFormulaire['formulaire-' + key]) && (_saveFormulaire['formulaire-' + key][panel] != "")) {
-							if (_saveFormulaire['formulaire-' + key][panel][configformulaire[key]["module"][panel]["elements"][element]["name"]] != "") {
-								formText.value = _saveFormulaire['formulaire-' + key][panel][configformulaire[key]["module"][panel]["elements"][element]["name"]];
-							}
-						}
-						formPanel.appendChild(formLabel);
-						formPanel.appendChild(formText);
-					}
-					break;
+		for (configModule in configformulaire[key]["module"]) {
+			formModule = document.createElement('div');
+			formModule.id = configformulaire[key]["idForm"] + "_" + configformulaire[key]["module"][configModule]["name"]
+			if (configformulaire[key]["module"][configModule]["show"]) {
+				formModule.style.display = 'block';
+			} else {
+				formModule.style.display = 'none';
 			}
-			formVue.append(formNavIntent);
-			formVue.appendChild(formPanel);
+			let _label = document.createElement('label');
+			_label.innerHTML = configformulaire[key]["module"][configModule]["label"];
+			formModule.appendChild(_label);
+			switch (configformulaire[key]["module"][configModule]["typeHTMLForm"]) {
+				case "select":
+					let _select = document.createElement('select');
+					if (configformulaire[key]["module"][configModule]["multiple"]) {
+						_select.multiple = true;
+					}
+					let _optionContent = "";
+					if (typeof configformulaire[key]["module"][configModule]["option"] === 'string' && configformulaire[key]["module"][configModule]["option"].startsWith("js")) {
+						_optionContent = varList[configformulaire[key]["module"][configModule]["option"].slice(2)];
+					} else {
+						_optionContent = configformulaire[key]["module"][configModule]["option"];
+					}
+					for (let [keyOP, value] of Object.entries(_optionContent)) {
+						// if defaultvalue exists and contains the key, then select the option
+						let _option = document.createElement('option');
+						_option.value = keyOP;
+						_option.text = value;
+						if (hasSave) {
+							for (let i = 0; i < _saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'].length; i++) {
+								if (_saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'][i]['name'] == configformulaire[key]["module"][configModule]["name"]) {
+									for (let j = 0; j < _saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'][i]['value'].length; j++) {
+										if (_saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'][i]['value'][j] == keyOP) {
+											_option.selected = true;
+										}
+									}
+								}
+							}
+						} else if (configformulaire[key]["module"][configModule]["defaultValue"] && configformulaire[key]["module"][configModule]["defaultValue"].includes(value)) {
+							_option.selected = true;
+						}
+						_select.appendChild(_option);
+					}
+					_select.size = configformulaire[key]["module"][configModule]["size"];
+					formModule.appendChild(_select);
+				break;
+				case "checkbox":
+					let _checkbox = document.createElement('input');
+					_checkbox.type = "checkbox";
+					formModule.appendChild(_checkbox);
+					if (hasSave) {
+						for (let i = 0; i < _saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'].length; i++) {
+							if (_saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'][i]['name'] == configformulaire[key]["module"][configModule]["name"]) {
+								_checkbox.checked = _saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'][i]['value'];
+							}
+						}
+					} else if (configformulaire[key]["module"][configModule]["defaultValue"]) {
+						_checkbox.checked = true;
+					}
+				break;
+				case "multi-texte":
+					let _div = document.createElement('div');
+					_div.style = "display: flex; flex-direction: column;";
+					_div.id = configformulaire[key]["idForm"] + configformulaire[key]["module"][configModule]["name"] + "_multiTexte";
+					if (hasSave) {
+						for (let i = 0; i < _saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'].length; i++) {
+							if (_saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'][i]['name'] == configformulaire[key]["module"][configModule]["name"]) {
+								// cut the string with the separator ";"
+								let _value = _saveFormulaire['formulaire-' + configformulaire[key]["idForm"]]['intents'][i]['value'].split(";");
+								for (let j = 0; j < _value.length; j++) {
+									let _multiTexte = document.createElement('input');
+									_multiTexte.type = "text";
+									_multiTexte.style = "margin-top: 5px;";
+									_multiTexte.value = _value[j];
+									_multiTexte.setAttribute("oninput", "toggleInput('" + _div.id + "',this);");
+									_div.appendChild(_multiTexte);
+								}
+							}
+						}
+					} else if (configformulaire[key]["module"][configModule]["defaultValue"]) {
+						for (let i = 0; i < configformulaire[key]["module"][configModule]["defaultValue"].length; i++) {
+							let _multiTexte = document.createElement('input');
+							_multiTexte.type = "text";
+							_multiTexte.style = "margin-top: 5px;";
+							_multiTexte.value = configformulaire[key]["module"][configModule]["defaultValue"][i];
+							_multiTexte.setAttribute("oninput", "toggleInput('" + _div.id + "',this);");
+							_div.appendChild(_multiTexte);
+						}
+					}
+					let _multiTexte = document.createElement('input');
+					_multiTexte.type = "text";
+					_multiTexte.style = "margin-top: 5px;";
+					_multiTexte.setAttribute("oninput", "toggleInput('" + _div.id + "',this);");
+					_div.appendChild(_multiTexte);
+					formModule.appendChild(_div);
+				break;
+			}
+			form.appendChild(formModule);
 		}
-		form.append(formVue);
 		document.getElementById('pageIntent').appendChild(form);
 	}
 
 	function showForm(formId) {
 		// Masquer tous les formulaires
 		for (key in configformulaire) {
-			document.getElementById(key).style.display = 'none';
+			document.getElementById(configformulaire[key]["idForm"]).style.display = 'none';
 		}
 		// Afficher le formulaire spécifié
 		document.getElementById(formId).style.display = 'block';
@@ -223,4 +180,99 @@ sendVarToJS('varList', $varList);
 		}
 	}
 
+    function toggleInput(container,input) {
+        var inputsContainer = document.getElementById(container);
+        if (input === inputsContainer.lastElementChild && input.value !== "") {
+            var newInput = document.createElement("input");
+            newInput.type = "text";
+			newInput.style = "margin-top: 5px;";
+            newInput.setAttribute("oninput", "toggleInput('" + container + "',this);");
+            inputsContainer.appendChild(newInput);
+        }
+        else if (input !== inputsContainer.lastElementChild && input.value === "") {
+            inputsContainer.removeChild(input);
+        }
+    }
+
+	$('#bt_trainmodel').off().on('click',function() {
+		saveIntentsForm()
+	})
+
+	function saveIntentsForm() {
+		let _formulaire = {};
+		for (key in configformulaire) {
+			let _select = document.getElementById('select' + configformulaire[key]["idForm"]);
+			if (_select.checked) {
+				_formulaire[configformulaire[key]["idForm"]] = {
+					"active": "1"
+				}
+			} else {
+				_formulaire[configformulaire[key]["idForm"]] = {
+					"active": "0"
+				}
+			}
+			_formulaire[configformulaire[key]["idForm"]]['module'] = [];
+			for (configModule in configformulaire[key]["module"]) {
+				let _module = configformulaire[key]["module"][configModule];
+				let _moduleValue = []
+				switch (_module["typeHTMLForm"]) {
+					case "select":
+						let _select = document.getElementById(configformulaire[key]["idForm"] + "_" + _module["name"]).querySelector('select');
+						if (_select.multiple) {
+							_moduleValue = [];
+							for (let i = 0; i < _select.options.length; i++) {
+								if (_select.options[i].selected) {
+									_moduleValue.push(_select.options[i].value);
+								}
+							}
+						} else {
+							_moduleValue = _select.options[_select.selectedIndex].value;
+						}
+					break;
+					case "checkbox":
+						let _checkbox = document.getElementById(configformulaire[key]["idForm"] + "_" + _module["name"]).querySelector('input');
+						_moduleValue = _checkbox.checked;
+					break;
+					case "multi-texte":
+						let _div = document.getElementById(configformulaire[key]["idForm"] + _module["name"] + "_multiTexte");
+						_moduleValue = [];
+						for (let i = 0; i < _div.children.length; i++) {
+							if (_div.children[i].value != "") {
+								_moduleValue.push(_div.children[i].value);
+							}
+						}
+					break;
+				}
+				console.log("10")
+				_formulaire[configformulaire[key]["idForm"]]['module'].push({
+					"name": _module["name"],
+					"value": _moduleValue,
+					"class" : _module["class"],
+					"rhasspyslotlink" : _module["rhasspyslotlink"] ? _module["rhasspyslotlink"] : ""
+				})
+			}
+			_formulaire[configformulaire[key]["idForm"]]['phrase'] = configformulaire[key]["phrase"];
+		}
+		// debug
+		console.log(_formulaire)
+		$.ajax({
+			type: "POST",
+			url: "plugins/jeerhasspy/core/ajax/jeerhasspy.ajax.php",
+			data: {
+			action: "buildmodel",
+			intents: json_encode(_formulaire)
+			},
+			dataType: 'json',
+			error: function (request, status, error) {
+				$('#div_alertIntentsForm').showAlert({message: error.message, level: 'danger'})
+			},
+			success: function (data) {
+			if (data.state != 'ok') {
+				$('#div_alertIntentsForm').showAlert({message: error.message, level: 'danger'})
+				return
+			}
+			$('#div_alertIntentsForm').showAlert({message: '{{Sauvegarde effectuée}}', level: 'success'});
+			},
+		})
+	}
 </script>

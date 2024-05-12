@@ -1,87 +1,128 @@
-{
-	"jeedomLumiere" : {
-        "name" : "Lumiere",
+[
+	{
+		"idForm" : "jeedomLumiere",
+		"name" : "Lumiere",
 		"titre" : "Gestion de la lumière",
 		"module" : [
 			{
-				"type" : "select",
+				"typeHTMLForm" : "select",
 				"name" : "objet",
-				"balise" : "Objet : #objet#",
+				"label" : "liste des objets jeedom",
 				"size" : 10,
-				"option" : "_objet"
-            },
+				"multiple" : true,
+				"option" : "js_objet",
+				"class" : ["isobject","isrhasspyslot"],
+				"show" : true
+			},
 			{
-				"type" : "text",
+				"typeHTMLForm" : "checkbox",
+				"name" : "recursif",
+				"label" : "Inclure les objets enfants",
+				"class" : ["isrecursif"],
+				"show" : true
+			},
+			{
+				"typeHTMLForm" : "checkbox",
+				"name" : "temporisation",
+				"label" : "Temporisation",
+				"class" : ["istemporisation"],
+				"show" : true
+			},
+			{
+				"typeHTMLForm" : "multi-texte",
+				"name" : "custom",
+				"label" : "Custom word",
+				"class" : ["isrhasspycustomword"],
+				"show" : true,
+				"defaultValue" : ["raspberry R a s p b e R i","kodi K o d I"]
+			},
+			{
+				"typeHTMLForm" : "multi-texte",
 				"name" : "equipement",
-				"balise" : "Nom des équipements : #equipement#",
-				"option" : "lampe;plafonnier;led;lumière;spot"
+				"label" : "Nom d'equipement",
+				"class" : ["isequipement","isrhasspyslot"],
+				"show" : true,
+				"defaultValue" : ["lampe","plafonnier","led","lumière","spot"]
 			},
 			{
-				"type" : "text",
-				"name" : "customWord",
-				"balise" : "mot custom :",
-				"option" : "raspberry:R a s p b e R i;kodi:K o d I"
+				"typeHTMLForm" : "multi-texte",
+				"name" : "onjeedom",
+				"label" : "Nom jeedom des commandes on",
+				"class" : ["isjeedomaction"],
+				"rhasspyslotlink" : "ontxt",
+				"show" : true,
+				"defaultValue" : ["on","allumer"]
 			},
 			{
-				"type" : "checkbox",
-				"name" : "commande",
-				"balise" : "Commande : #commande#",
-				"class" : "checkboxes",
-				"text" : ["allume | éteint","ouvre | ferme","met à 1 | met à 0"]
+				"typeHTMLForm" : "multi-texte",
+				"name" : "offjeedom",
+				"label" : "Nom jeedom des commandes off",
+				"class" : ["isjeedomaction"],
+				"rhasspyslotlink" : "offtxt",
+				"show" : true,
+				"defaultValue" : ["off","eteindre"]
 			},
 			{
-				"type" : "phrase",
-				"name" : "phrase",
-				"balise" : "paterne de phrase",
-				"phrase" : [
-					{
-						"name" : "direct_unique",
-                        "balise" : "controler un equipement",
-						"div" : [
-							{"type" : "texte","class" : "intentBox", "text" : "phase : "},
-							{"type" : "texte","class" : "textIntent", "text" : "&lt;commande&gt;"},
-							{"type" : "texte","class" : "textIntent", "text" : "[la] [le] [l']"},
-							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;equipement&gt;"},
-							{"type" : "texte","class" : "textIntent", "text" : "[de] [à] [l'] [la] [du] [de la]"},
-							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;objet&gt;"}
-						],
-						"phraseReturn" : "Ok je vais #commande# #equipement# #objet#",
-						"pluginRequis" : [],
-						"descriptif" : "Ordre direct sur un equipement"
-					},
-					{
-						"name" : "direct_recursif",
-                        "balise" : "controler plusieurs equipement de maniere recursif",
-						"div" : [
-							{"type" : "texte","class" : "intentBox", "text" : "phase : "},
-							{"type" : "texte","class" : "textIntent", "text" : "&lt;commande&gt;"},
-							{"type" : "texte","class" : "textIntent", "text" : "[tous | toutes]"},
-							{"type" : "texte","class" : "textIntent", "text" : "[les] [l']"},
-							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;equipement&gt;"},
-							{"type" : "texte","class" : "textIntent", "text" : "[de] [à] [l'] [la] [du] [de la]"},
-							{"type" : "texte","class" : "textIntent intentBox", "text" : "&lt;objet&gt;"}
-						],
-						"phraseReturn" : "Ok je vais #commande# #equipement# #objet#",
-						"pluginRequis" : ["virtuel"],
-						"descriptif" : "ordre direct sur un virtuel qui controle plusieurs equipement d'un objet (recursif)"
-                    }
-				]
-            },
+				"typeHTMLForm" : "multi-texte",
+				"name" : "ontxt",
+				"label" : "mot pour allumer",
+				"class" : ["isrhasspyaction","isrhasspyslot"],
+				"show" : true,
+				"defaultValue" : ["allumer","ouvre","met à 1"]
+			},
 			{
-				"type" : "multitext",
-				"name" : "commande jeedom",
-                "elements" : [
-                    {"name" : "commandeOn","balise" : "Commande jeedom pour activer:", "option" : "on;allumer"},
-                    {"name" : "commandeOff","balise" : "Commande jeedom pour désactiver:", "option" : "off;eteindre"}
-                ]
-            },
+				"typeHTMLForm" : "multi-texte",
+				"name" : "offtxt",
+				"label" : "mot pour eteindre",
+				"class" : ["isrhasspyaction","isrhasspyslot"],
+				"show" : true,
+				"defaultValue" : ["éteint","ferme","met à 0"]
+			},
 			{
-				"type" : "select",
+				"typeHTMLForm" : "multi-texte",
+				"name" : "temporisation",
+				"label" : "temporisation",
+				"class" : ["isrhasspyaction","isrhasspyslot"],
+				"show" : false,
+				"defaultValue" : ["1..24 heure [1..59] [minute]","1..59 minute"]
+			},
+			{
+				"typeHTMLForm" : "select",
 				"name" : "category",
-				"balise" : "Catégorie : type d'équipement jeedom rechercher",
+				"label" : "Catégorie : des équipements à allumer/éteindre",
 				"size" : 10,
-				"option" : {"noCategory" : "0", "heating" : "0", "security" : "0", "energy" : "0", "light" : "1", "opening" : "0", "automatism" : "0", "multimedia" : "0", "default" : "0"}
+				"multiple" : true,
+				"option" : ["noCategory","heating", "security", "energy", "light", "opening", "automatism", "multimedia", "default"],
+				"class" : ["isjeedomcategory"],
+				"show" : true,
+				"defaultValue" : ["light"]
             }
-        ]
-    }
-}
+		],
+		"phrase" : [
+			{
+				"intent" : "(#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [dans|dans la|dans le|de|à|l'|la|du|de la] (#objet#)",
+				"cond" : []
+			},
+			{
+				"intent" : "(#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [dans|dans la|dans le|dans les|de|à|l'|la|du|de la] (#objet#)",
+				"cond" : ["recursif"]
+			},
+			{
+				"intent" : "(#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [de|à|l'|la|du|de la] (#objet#) [dans|à|l'|la|du|de la] #temporisation#",
+				"cond" : ["temporisation"]
+			},
+			{
+				"intent" : "(#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [de|à|l'|la|du|de la] (#objet#) [dans|à|l'|la|du|de la] #temporisation#",
+				"cond" : ["temporisation","recursif"]
+			},
+			{
+				"intent" : "(a | dans | pour) #temporisation# (#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [de|à|l'|la|du|de la] (#objet#)",
+				"cond" : ["temporisation"]
+			},
+			{
+				"intent" : "(a | dans | pour) #temporisation# (#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [de|à|l'|la|du|de la] (#objet#)",
+				"cond" : ["temporisation","recursif"]
+			}
+		]
+	}
+]

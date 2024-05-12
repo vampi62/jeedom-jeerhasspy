@@ -133,6 +133,28 @@ try {
 		if (isset($result['error']) ) {
 			ajax::error($result['error']);
 		}
+		log::add('jeerhasspy', 'debug', 'syncronisation des intents avec jeerhasspy');
+		$result = RhasspyUtils::loadAssistant();
+		if (isset($result['error']) ) {
+			ajax::error($result['error']);
+		}
+		log::add('jeerhasspy', 'debug', 'activation des intents du plugin pris en charge par le formulaire, en mode interaction');
+		foreach ($intentFormData as $name => $i) {
+			for($j=0; $j<count($i["phrase"]); $j++) {
+				$intent = jeerhasspy_intent::byName($name . '_' . $j);
+				if (is_object($intent)) {
+					$intentData = jeedom::toHumanReadable(utils::o2a($intent));
+					$intentData["configuration"]["group"] = "rhasspybuild";
+					utils::a2o($intent, jeedom::fromHumanReadable($intentData));
+					$intent->setIsInteract(1);
+					$intent->setIsEnable(1);
+					$intent->save();
+				}
+			}
+		}
+		ajax::success();
+	}
+
 	throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
 	/*     * *********Catch exeption*************** */
 } catch (Exception $e) {
