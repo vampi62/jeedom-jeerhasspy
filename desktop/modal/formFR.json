@@ -19,6 +19,7 @@
 				"name" : "recursif",
 				"label" : "Inclure les objets enfants",
 				"class" : ["isrecursif"],
+				"required" : [{"plugin":"virtual"}],
 				"show" : true
 			},
 			{
@@ -101,27 +102,54 @@
 		"phrase" : [
 			{
 				"intent" : "(#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [dans|dans la|dans le|de|à|l'|la|du|de la] (#objet#)",
-				"cond" : []
+				"required" : [],
+				"confirmMSG" : "ok je vais #action# [la|le|l'] (#equipement#) [dans|dans la|dans le|de|à|l'|la|du|de la] (#objet#)",
+				"jeedom": ""
 			},
 			{
 				"intent" : "(#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [dans|dans la|dans le|dans les|de|à|l'|la|du|de la] (#objet#)",
-				"cond" : ["recursif"]
+				"required" : [{"formulaire":"recursif"}],
+				"jeedom": ""
 			},
 			{
-				"intent" : "(#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [de|à|l'|la|du|de la] (#objet#) [dans|à|l'|la|du|de la] #temporisation#",
-				"cond" : ["temporisation"]
+				"intent" : "(#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [dans|dans la|dans le|de|à|l'|la|du|de la] (#objet#) (a | pour | vers) #temporisation#",
+				"required" : [{"formulaire":"temporisation"}],
+				"jeedom": "#time#"
 			},
 			{
-				"intent" : "(#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [de|à|l'|la|du|de la] (#objet#) [dans|à|l'|la|du|de la] #temporisation#",
-				"cond" : ["temporisation","recursif"]
+				"intent" : "(#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [dans|dans la|dans le|de|à|l'|la|du|de la] (#objet#) dans #temporisation#",
+				"required" : [{"formulaire":"temporisation"}],
+				"jeedom": "#duration#"
 			},
 			{
-				"intent" : "(a | dans | pour) #temporisation# (#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [de|à|l'|la|du|de la] (#objet#)",
-				"cond" : ["temporisation"]
+				"intent" : "(#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [dans|dans la|dans le|dans les|de|à|l'|la|du|de la] (#objet#) (a | pour | vers) #temporisation#",
+				"required" : [{"formulaire":"temporisation"},{"formulaire":"recursif"}],
+				"jeedom": "#time#"
 			},
 			{
-				"intent" : "(a | dans | pour) #temporisation# (#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [de|à|l'|la|du|de la] (#objet#)",
-				"cond" : ["temporisation","recursif"]
+				"intent" : "(#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [dans|dans la|dans le|dans les|de|à|l'|la|du|de la] (#objet#) dans #temporisation#",
+				"required" : [{"formulaire":"temporisation"},{"formulaire":"recursif"}],
+				"jeedom": "#duration#"
+			},
+			{
+				"intent" : "(a | pour | vers) #temporisation# (#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [dans|dans la|dans le|de|à|l'|la|du|de la] (#objet#)",
+				"required" : [{"formulaire":"temporisation"}],
+				"jeedom": "#time#"
+			},
+			{
+				"intent" : "dans #temporisation# (#ontxt#|#offtxt#) [la|le|l'] (#equipement#) [dans|dans la|dans le|de|à|l'|la|du|de la] (#objet#)",
+				"required" : [{"formulaire":"temporisation"}],
+				"jeedom": "#duration#"
+			},
+			{
+				"intent" : "(a | pour | vers) #temporisation# (#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [dans|dans la|dans le|dans les|de|à|l'|la|du|de la] (#objet#)",
+				"required" : [{"formulaire":"temporisation"},{"formulaire":"recursif"}],
+				"jeedom": "#time#"
+			},
+			{
+				"intent" : "dans #temporisation# (#ontxt#|#offtxt#) (toutes les | tous les | tous | toutes | les) (#equipement#) [dans|dans la|dans le|dans les|de|à|l'|la|du|de la] (#objet#)",
+				"required" : [{"formulaire":"temporisation"},{"formulaire":"recursif"}],
+				"jeedom": "#duration#"
 			}
 		]
 	}
